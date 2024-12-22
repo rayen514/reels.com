@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram-Style Reels</title>
+    <style>
+        /* Reset et style de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .reel-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            scroll-snap-type: y mandatory;
+            overflow-y: auto;
+        }
+
+        .reel {
+            position: relative;
+            height: 90vh;
+            width: 100%;
+            margin-bottom: 10px;
+            scroll-snap-align: start;
+            background: #111;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        video {
+            width: 100%;
+            height: 70%;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .description-box {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .description-box h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .actions button {
+            background-color: #ff3b3b;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .actions button.download {
+            background-color: #1a73e8;
+        }
+
+        .actions button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="reel-container" id="reel-container">
+        <!-- Reel 1 -->
+        <div class="reel" id="reel-1">
+            <video src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay loop muted onclick="toggleFullScreen(this)"></video>
+            <div class="description-box">
+                <h3>@user1</h3>
+                <p>This is a beautiful reel about nature! Enjoy the breathtaking views.</p>
+            </div>
+            <div class="actions">
+                <button onclick="saveVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Nature Video')">Enregistrer</button>
+                <button class="download" onclick="downloadVideo('https://www.w3schools.com/html/mov_bbb.mp4')">Télécharger</button>
+                <button onclick="updateVideo('https://www.w3schools.com/html/mov_bbb.mp4', '@user1', 'This is a new description for nature video!')">Modifier Vidéo</button>
+            </div>
+        </div>
+
+        <!-- Reel 2 -->
+        <div class="reel" id="reel-2">
+            <video src="https://www.w3schools.com/html/movie.mp4" autoplay loop muted onclick="toggleFullScreen(this)"></video>
+            <div class="description-box">
+                <h3>@user2</h3>
+                <p>Check out this amazing video! Something unique for your day!</p>
+            </div>
+            <div class="actions">
+                <button onclick="saveVideo('https://www.w3schools.com/html/movie.mp4', 'Amazing Video')">Enregistrer</button>
+                <button class="download" onclick="downloadVideo('https://www.w3schools.com/html/movie.mp4')">Télécharger</button>
+                <button onclick="updateVideo('https://www.w3schools.com/html/movie.mp4', '@user2', 'Updated description for amazing video!')">Modifier Vidéo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tableau pour enregistrer les vidéos sauvegardées
+        let savedVideos = [];
+        let recentlySharedVideos = [];
+
+        // Fonction pour enregistrer une vidéo
+        function saveVideo(videoUrl, description) {
+            savedVideos.push({ url: videoUrl, desc: description });
+            alert('Vidéo enregistrée avec succès !');
+            localStorage.setItem('savedVideos', JSON.stringify(savedVideos)); // Sauvegarde locale
+        }
+
+        // Fonction pour télécharger une vidéo
+        function downloadVideo(videoUrl) {
+            const link = document.createElement('a');
+            link.href = videoUrl;
+            link.download = 'video.mp4'; // Nom du fichier à télécharger
+            link.click();
+            alert('Vidéo téléchargée avec succès !');
+        }
+
+        // Fonction pour modifier une vidéo (URL et description)
+        function updateVideo(videoUrl, user, newDescription) {
+            alert('Vidéo mise à jour avec succès !');
+            const reel = document.querySelector(`video[src='${videoUrl}']`).parentElement;
+            reel.querySelector('h3').textContent = user;
+            reel.querySelector('p').textContent = newDescription;
+        }
+
+        // Fonction pour passer une vidéo en plein écran
+        function toggleFullScreen(videoElement) {
+            if (videoElement.requestFullscreen) {
+                videoElement.requestFullscreen();
+            } else if (videoElement.mozRequestFullScreen) { // Firefox
+                videoElement.mozRequestFullScreen();
+            } else if (videoElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                videoElement.webkitRequestFullscreen();
+            } else if (videoElement.msRequestFullscreen) { // IE/Edge
+                videoElement.msRequestFullscreen();
+            }
+        }
+
+        // Fonction pour afficher les vidéos récemment partagées en premier
+        function displayRecentVideos() {
+            recentlySharedVideos.unshift(savedVideos.pop()); // Ajoute la vidéo récemment partagée en haut
+            localStorage.setItem('recentlySharedVideos', JSON.stringify(recentlySharedVideos)); // Sauvegarde les vidéos récentes
+            alert('Vidéo partagée récemment !');
+            updateReelDisplay();
+        }
+
+        // Met à jour l'affichage des vidéos
+        function updateReelDisplay() {
+            const reelContainer = document.getElementById('reel-container');
+            reelContainer.innerHTML = ''; // Vide le conteneur
+
+            recentlySharedVideos.forEach(video => {
+                const newReel = document.createElement('div');
+                newReel.classList.add('reel');
+                newReel.innerHTML = `
+                    <video src="${video.url}" autoplay loop muted onclick="toggleFullScreen(this)"></video>
+                    <div class="description-box">
+                        <h3>${video.user}</h3>
+                        <p>${video.desc}</p>
+                    </div>
+                    <div class="actions">
+                        <button onclick="saveVideo('${video.url}', '${video.desc}')">Enregistrer</button>
+                        <button class="download" onclick="downloadVideo('${video.url}')">Télécharger</button>
+                    </div>
+                `;
+                reelContainer.appendChild(newReel);
+            });
+        }
+    </script>
+</body>
+</html>
